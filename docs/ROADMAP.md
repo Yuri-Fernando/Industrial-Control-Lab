@@ -10,7 +10,7 @@
 - [x] SRS, register map, architecture, safety boundary, CI config
 - [x] PlatformIO CLI build + Unity tests on the target Windows machine (v0.2)
 - [x] Linux (WSL Ubuntu, GCC 13) build + integration tests (v0.2)
-- [ ] CI pipeline execution after publishing to GitHub
+- [x] CI pipeline (ubuntu-24.04 + windows-latest) green on GitHub Actions (v0.2)
 
 ## Phase 1 — Core automation capabilities
 

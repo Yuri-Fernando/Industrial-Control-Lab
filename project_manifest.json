@@ -14,6 +14,6 @@
     "Scan timing benchmark Windows and Linux (docs/evidence)",
     "6/6 REST acceptance scenarios with remote I/O + ST engine"
   ],
-  "not_verified": ["GitHub Actions run", "ST under matiec/OpenPLC", "hard real time / PREEMPT_RT", "SCHED_FIFO (no CAP_SYS_NICE on host)", "physical I/O", "physical safety"],
+  "not_verified": ["ST under matiec/OpenPLC", "hard real time / PREEMPT_RT", "SCHED_FIFO (no CAP_SYS_NICE on host)", "physical I/O", "physical safety"],
   "docs_entrypoints": ["README.md", "docs/REQUIREMENTS.md", "docs/ARCHITECTURE.md", "docs/VALIDATION_REPORT.md", "docs/CAPABILITY_MAP.md", "docs/ROADMAP.md"]
 }

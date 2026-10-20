@@ -15,7 +15,7 @@
 
 🟡 **MVP técnico funcional — v0.2.0** — o controlador soft-PLC roda com motor em **C++** ou em **Structured Text**,
 fecha a malha através de um **nó de I/O remoto** em outro processo/container e publica telemetria por REST,
-Prometheus e MQTT. Validado em Windows 11, Linux (WSL Ubuntu 24.04) e Docker: 28 testes Unity, 22 testes de
+Prometheus e MQTT. Validado em Windows 11, Linux (WSL Ubuntu 24.04), Docker e no CI do GitHub (Linux + Windows): 28 testes Unity, 22 testes de
 integração com processos e sockets reais, 6/6 cenários de aceitação e captura MQTT real. Ainda não verificado:
 o mesmo `.st` num runtime IEC externo (OpenPLC/matiec) e kernel PREEMPT_RT.
 
@@ -427,7 +427,7 @@ python scripts/plot_timing.py
 | Windows 11 + VS Code + PlatformIO | `pio run`, `pio test -e test`, tarefas `ICL: …` em `.vscode/tasks.json`, `python scripts/lab.py …` | ✅ |
 | Linux / WSL | `./scripts/build_native.sh`, `./scripts/run_local.sh --io remote`, `./scripts/quality_gate.sh` | ✅ (build GCC + integração + bench) |
 | Docker | `docker compose up --build -d` → IHM em `:8088`; `docker compose exec mosquitto mosquitto_sub -t 'icl/thermal/#' -v` | ✅ |
-| GitHub Actions | `.github/workflows/ci.yml` (ubuntu-24.04 + windows-latest) | ver badge do CI |
+| GitHub Actions | `.github/workflows/ci.yml` (ubuntu-24.04 + windows-latest) | ✅ 28 Unity + 22 integração nos dois runners |
 
 **Projeto em pasta sincronizada (Google Drive/OneDrive):** o cliente de sincronização trava ou remove artefatos
 de build. Crie um `platformio_local.ini` (ignorado pelo Git) apontando o build para um disco local — o `lab.py`,

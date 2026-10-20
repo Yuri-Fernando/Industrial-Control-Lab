@@ -17,6 +17,7 @@
 | A — build | `pio run` (Windows): envs `native` + `io_node`; `./scripts/build_native.sh` (WSL) | **PASS**, no compiler warnings with `-Wall -Wextra` |
 | C — unit | `pio test -e test` (Windows) | **PASS — 28/28** (`test_native` 10, `test_stvm` 10, `test_modbus` 8) |
 | B — integration | `python -m unittest discover -s tests_python -v` | **PASS — 22/22** on Windows and on WSL Ubuntu |
+| CI | GitHub Actions run [39452498373](https://github.com/Yuri-Fernando/Industrial-Control-Lab/actions/runs/39452498373) (2026-10-20) | **PASS** on `ubuntu-24.04` and `windows-latest`: `pio run`, 28/28 Unity, plain GCC build (Linux), 22/22 integration |
 | D — HMI/acceptance | `scripts/lab.py run --io remote --engine st` + `scripts/lab.py demo` | **PASS — 6/6**, `engine_mismatches = 0` ([evidence](evidence/acceptance_remote_st_2026-10-19.json)) |
 | E — de-energize on faults | integration suites (local, ST, remote) | **PASS** — LOW_FLOW, SENSOR, OVERTEMP, WATCHDOG, ESTOP, IO_COMM_LOSS, I/O-node fail-safe |
 | F — Docker + MQTT | `docker compose up --build -d`, demo against `:8088`, `mosquitto_sub -t 'icl/thermal/#'` | **PASS — 6/6**; topics telemetry/state/alarm/gateway-status received ([capture](evidence/mqtt_capture_docker_2026-10-19.txt), [acceptance](evidence/acceptance_docker_2026-10-19.json)); gateway container cannot resolve/reach `io-node` (field network isolation) |
@@ -43,8 +44,6 @@
 
 ### Not validated in this revision
 
-- GitHub Actions run (repository not yet published).
-- PlatformIO on Linux (CLI not installed in WSL; the Linux CI job covers it after publishing).
 - `st/FB_Interlocks.st` under matiec or OpenPLC Runtime.
 - SCHED_FIFO with privilege (WSL user lacks `CAP_SYS_NICE`; the controller reports `rt_elevated = 0`), PREEMPT_RT.
 - Physical I/O, physical safety, interoperability with third-party Modbus masters/slaves.
