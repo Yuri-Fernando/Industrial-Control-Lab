@@ -1,0 +1,62 @@
+# Four-service virtual plant: remote I/O node <-Modbus TCP-> soft-PLC controller <-Modbus TCP-> edge gateway -> MQTT.
+# Host ports bind 127.0.0.1 only. CONTROL_ENGINE=st runs the IEC 61131-3 block in the scan.
+services:
+  io-node:
+    build:
+      context: .
+      dockerfile: Dockerfile.controller
+    command: ["/usr/local/bin/io_node"]
+    environment:
+      IO_BIND: 0.0.0.0
+      IO_PORT: 15021
+    restart: unless-stopped
+    networks: [fieldnet]
+  controller:
+    build:
+      context: .
+      dockerfile: Dockerfile.controller
+    environment:
+      CONTROL_BIND: 0.0.0.0
+      CONTROL_PORT: 15020
+      IO_MODE: remote
+      IO_HOST: io-node
+      IO_PORT: 15021
+      CONTROL_ENGINE: ${CONTROL_ENGINE:-cpp}
+    ports:
+      - '127.0.0.1:15020:15020'
+    depends_on: [io-node]
+    restart: unless-stopped
+    networks: [fieldnet, controlnet]
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway
+    environment:
+      CONTROL_HOST: controller
+      CONTROL_PORT: 15020
+      MQTT_HOST: mosquitto
+      HTTP_BIND: 0.0.0.0
+    ports:
+      - '127.0.0.1:8088:8088'
+    depends_on: [controller, mosquitto]
+    restart: unless-stopped
+    networks: [controlnet]
+  mosquitto:
+    image: eclipse-mosquitto:2
+    configs:  # inline config: works even where bind mounts are unavailable (e.g. cloud-synced drives)
+      - source: mosquitto_conf
+        target: /mosquitto/config/mosquitto.conf
+    ports:
+      - '127.0.0.1:1883:1883'
+    restart: unless-stopped
+    networks: [controlnet]
+configs:
+  mosquitto_conf:  # keep in sync with infra/mosquitto/mosquitto.conf (LOCAL LAB ONLY)
+    content: |
+      listener 1883 0.0.0.0
+      allow_anonymous true
+      persistence false
+      log_dest stdout
+networks:
+  fieldnet: {}    # field level: controller <-> remote I/O only (the gateway cannot reach the I/O node)
+  controlnet: {}  # supervisory level

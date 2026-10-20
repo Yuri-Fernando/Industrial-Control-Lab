@@ -1,0 +1,19 @@
+{
+  "name": "industrial-control-lab",
+  "version": "0.2.0",
+  "created_at": "2026-10-17",
+  "updated_at": "2026-10-19",
+  "scope": "hardware-free soft-PLC laboratory for a virtual scientific cooling loop",
+  "language": ["C++17", "IEC 61131-3 ST (executed by in-repo stvm subset interpreter)", "Python 3", "HTML/CSS/JS"],
+  "software_only": true,
+  "verified": [
+    "PlatformIO native build (controller + io_node) and 28 Unity tests on Windows 11 / MinGW-w64 GCC 15.2",
+    "22 real-socket integration tests on Windows 11 (Python 3.10) and WSL Ubuntu 24.04 (GCC 13.3, Python 3.12)",
+    "ST vs C++ differential test: 200000 randomized scans + closed loop, zero divergence",
+    "Remote I/O node: link loss, stale samples, latency tolerance/trip, output watchdog fail-safe",
+    "Scan timing benchmark Windows and Linux (docs/evidence)",
+    "6/6 REST acceptance scenarios with remote I/O + ST engine"
+  ],
+  "not_verified": ["GitHub Actions run", "ST under matiec/OpenPLC", "hard real time / PREEMPT_RT", "SCHED_FIFO (no CAP_SYS_NICE on host)", "physical I/O", "physical safety"],
+  "docs_entrypoints": ["README.md", "docs/REQUIREMENTS.md", "docs/ARCHITECTURE.md", "docs/VALIDATION_REPORT.md", "docs/CAPABILITY_MAP.md", "docs/ROADMAP.md"]
+}

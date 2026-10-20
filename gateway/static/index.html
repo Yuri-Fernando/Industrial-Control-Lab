@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Industrial Control Lab | Virtual Cooling Loop</title>
+<style>
+:root{font-family:Inter,system-ui,Arial,sans-serif;color:#e2e8f0;background:#08111f;--ok:#22c55e;--bad:#fb7185;--warn:#fbbf24;--info:#7dd3fc;--line:#23344a}*{box-sizing:border-box}
+body{max-width:1240px;margin:0 auto;padding:24px 16px;background:#08111f}header{display:flex;justify-content:space-between;align-items:center;gap:20px;border-bottom:1px solid #1e293b;padding-bottom:18px;margin-bottom:20px}
+h1{margin:0;font-size:26px;font-weight:750;letter-spacing:-.6px}p{color:#94a3b8;margin:6px 0 0}small{color:#64748b}h2{font-size:14px;color:#cbd5e1;font-weight:650;margin:0 0 14px;text-transform:uppercase;letter-spacing:.06em}
+mark{padding:8px 13px;border-radius:8px;background:#26364a;color:var(--info);font-weight:800;font-size:15px}section{background:#101e31;border:1px solid var(--line);border-radius:14px;padding:18px;margin:0;min-width:0}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:12px}.metric{font-size:26px;line-height:1.35;font-weight:750}
+.layout{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px}.controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+button{border:0;border-radius:8px;padding:10px 13px;color:#f8fafc;background:#334155;cursor:pointer;font-weight:650}button:hover{filter:brightness(1.25)}.primary{background:#137bce}.danger{background:#b91c1c}.warning{background:#a16207}
+input{background:#0b1627;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:9px;width:96px}label{display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap}
+#plot{width:100%;height:220px;background:#0b1627;border-radius:10px;border:1px solid #1e293b}
+.row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #1e293b}.row:last-child{border-bottom:0}output{font-size:12px;color:#93c5fd;min-height:18px;display:block}
+.ok{color:var(--ok)}.bad{color:var(--bad)}.warn{color:var(--warn)}.mimic{width:100%;height:auto;display:block}
+.mimic text{fill:#cbd5e1;font-size:12px;font-family:inherit}.pipe{stroke:#334155;stroke-width:8;fill:none;stroke-linecap:round}.flow{stroke:#38bdf8;stroke-width:3;fill:none;stroke-dasharray:10 10}
+.flowing{animation:dash 1s linear infinite}@keyframes dash{to{stroke-dashoffset:-20}}
+@media(max-width:860px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.layout{grid-template-columns:1fr}header{display:block}header mark{display:inline-block;margin-top:12px}}
+@media(prefers-reduced-motion:reduce){.flowing{animation:none}}
+</style></head><body>
+<header><div><h1>Industrial Control Lab</h1><p>Virtual scientific cooling loop · soft-PLC (C++ / IEC 61131-3 ST) · Modbus TCP · remote I/O · MQTT</p></div><mark id="state">CONNECTING</mark></header>
+<div class="grid">
+<section><h2>Chamber temperature</h2><div class="metric" id="temp">—</div><small>Measured sensor</small></section>
+<section><h2>Setpoint</h2><div class="metric" id="target">—</div><small>Range 24–38 °C</small></section>
+<section><h2>Coolant flow</h2><div class="metric" id="flow">—</div><small>Low-flow interlock: 5.0 L/min</small></section>
+<section><h2>Cooling actuator</h2><div class="metric" id="cooling">—</div><small>Pump: <span id="pump">—</span></small></section>
+</div>
+<div class="layout">
+<section><h2>Process mimic</h2>
+<svg class="mimic" viewBox="0 0 760 170" role="img" aria-label="Cooling loop mimic">
+<rect x="20" y="30" width="150" height="110" rx="10" fill="#0b1627" stroke="#334155" stroke-width="2"/><text x="40" y="58">Scientific chamber</text><text id="m-temp" x="40" y="92" style="font-size:22px;font-weight:700">—</text><text id="m-load" x="40" y="122">heat load —</text>
+<path class="pipe" d="M170 70 H300"/><path class="pipe" d="M370 70 H500"/><path class="pipe" d="M570 70 H700 V150 H95 V140"/>
+<path id="f1" class="flow" d="M170 70 H300"/><path id="f2" class="flow" d="M370 70 H500"/><path id="f3" class="flow" d="M570 70 H700 V150 H95 V140"/>
+<circle id="m-pump" cx="335" cy="70" r="32" fill="#1e293b" stroke="#334155" stroke-width="3"/><path d="M322 52 L355 70 L322 88 Z" fill="#94a3b8"/><text x="312" y="122">Pump P-101</text>
+<rect x="500" y="40" width="70" height="60" rx="6" fill="#1e293b" stroke="#334155" stroke-width="3"/><rect id="m-valve" x="505" y="95" width="0" height="5" fill="#38bdf8"/><text x="492" y="122">HX / valve</text><text id="m-cool" x="510" y="76">—</text>
+<text x="600" y="62">FT-101</text><text id="m-flow" x="600" y="100">—</text>
+</svg>
+<h2 style="margin-top:14px">Temperature trend (live)</h2><canvas id="plot" width="760" height="220"></canvas><small>Blue: temperature · Amber: setpoint · last ~2 min, preloaded from the gateway history</small>
+<h2 style="margin-top:18px">Command panel</h2>
+<div class="controls"><button class="primary" onclick="command('start')">Start</button><button onclick="command('stop')">Stop</button><button onclick="command('reset')">Reset latched fault</button><button class="danger" onclick="command('estop')">Emergency stop (simulation)</button></div>
+<div class="controls"><label>Setpoint °C <input id="setpoint" type="number" min="24" max="38" step="0.5" value="27"></label><button onclick="command('setpoint',Number(el('setpoint').value))">Apply</button>
+<label>Heat load % <input id="heatload" type="number" min="0" max="100" value="60"></label><button onclick="command('heat_load',Number(el('heatload').value))">Apply</button></div><output id="msg"></output></section>
+<section><h2>Fault injection / test bench</h2><div class="controls"><button class="warning" onclick="toggleFault('low_flow')">Toggle low flow</button><button class="warning" onclick="toggleFault('sensor_failure')">Toggle sensor error</button><button class="warning" onclick="toggleFault('overtemperature')">Toggle over-temp</button></div>
+<div class="row"><span>Fault code</span><strong id="fault">—</strong></div><div class="row"><span>Control error</span><strong id="error">—</strong></div><div class="row"><span>Gateway heartbeat age</span><strong id="watchdog">—</strong></div><div class="row"><span>Safety trips</span><strong id="trips">—</strong></div><div class="row"><span>Sensor quality</span><strong id="sensor">—</strong></div>
+<h2 style="margin-top:18px">Runtime</h2>
+<div class="row"><span>Control engine</span><strong id="engine">—</strong></div><div class="row"><span>Shadow engine / mismatches</span><strong id="shadow">—</strong></div><div class="row"><span>Field I/O</span><strong id="iomode">—</strong></div><div class="row"><span>I/O sample age / errors</span><strong id="ioage">—</strong></div>
+<h2 style="margin-top:18px">Scan timing · 50 ms period</h2>
+<div class="row"><span>Lateness p50 / p95 / p99</span><strong id="lat">—</strong></div><div class="row"><span>Lateness max (60 s window)</span><strong id="latmax">—</strong></div><div class="row"><span>Execution p99 / max</span><strong id="exec">—</strong></div><div class="row"><span>Deadline misses · RT tuning</span><strong id="deadlines">—</strong></div>
+<p><small>Laboratory simulation only. Browser commands are not an industrial safety control.</small></p></section>
+</div>
+<script>
+const history=[];let latest={},inputsSynced=false;const el=id=>document.getElementById(id);function fmt(v,suffix=''){return v===undefined?'—':Number(v).toFixed(1)+suffix;}
+function us(v){return v===undefined?'—':(v>=1000?(v/1000).toFixed(2)+' ms':v+' µs');}
+async function command(name,value){try{const r=await fetch('/api/command',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command:name,value})});const obj=await r.json();if(!r.ok)throw new Error(obj.error);el('msg').textContent=`Command accepted: ${name}`;}catch(e){el('msg').textContent='Command failed: '+e.message;}}
+function toggleFault(name){const key={low_flow:'inject_low_flow',sensor_failure:'inject_sensor_failure',overtemperature:'inject_overtemperature'}[name];command(name,!latest[key]);}
+function draw(){const cv=el('plot'),c=cv.getContext('2d'),w=cv.width,h=cv.height;c.clearRect(0,0,w,h);c.strokeStyle='#23344a';c.lineWidth=1;for(let k=0;k<6;k++){const y=10+k*(h-20)/5;c.beginPath();c.moveTo(0,y);c.lineTo(w,y);c.stroke();}let values=history.flatMap(s=>[s.temperature_c,s.setpoint_c]);if(!values.length)return;let min=Math.floor(Math.min(...values)-1),max=Math.ceil(Math.max(...values)+1);if(max<=min)max=min+1;for(const [field,color] of [['temperature_c','#38bdf8'],['setpoint_c','#fbbf24']]){c.beginPath();c.strokeStyle=color;c.lineWidth=2;history.forEach((s,i)=>{const x=8+i*(w-16)/Math.max(history.length-1,1),y=h-10-(s[field]-min)*(h-20)/(max-min);i?c.lineTo(x,y):c.moveTo(x,y);});c.stroke();}c.fillStyle='#94a3b8';c.font='12px sans-serif';c.fillText(max+' °C',8,20);c.fillText(min+' °C',8,h-14);}
+function mimic(s){const flowing=s.flow_lpm>0.1&&s.io_healthy!==false;for(const id of ['f1','f2','f3'])el(id).classList.toggle('flowing',flowing),el(id).style.opacity=flowing?1:.15;el('m-pump').setAttribute('fill',s.pump?'#14532d':'#1e293b');el('m-pump').setAttribute('stroke',s.pump?'#22c55e':'#334155');el('m-valve').setAttribute('width',(60*s.cooling_pct/100).toFixed(1));el('m-temp').textContent=fmt(s.temperature_c,' °C');el('m-load').textContent='heat load '+s.heat_load_pct+' %';el('m-cool').textContent=fmt(s.cooling_pct,' %');el('m-flow').textContent=fmt(s.flow_lpm,' L/min');}
+function cls(id,c){el(id).className=c;}
+async function refresh(){try{const r=await fetch('/api/status');const s=await r.json();latest=s;el('state').textContent=s.state||s.quality;if(s.quality!=='GOOD'){el('state').style.color='#fb7185';return;}
+el('state').style.color=['FAULT','ESTOP'].includes(s.state)?'#fb7185':(s.state==='RUNNING'?'#22c55e':'#7dd3fc');// Field values from an unhealthy I/O link are last-known values: show them with bad quality, never as live data.
+const stale=s.io_healthy===false,q=stale?' STALE':'';el('temp').textContent=fmt(s.temperature_c,' °C')+q;el('target').textContent=fmt(s.setpoint_c,' °C');el('flow').textContent=fmt(s.flow_lpm,' L/min')+q;cls('temp','metric'+(stale?' warn':''));cls('flow','metric'+(stale?' warn':''));el('cooling').textContent=fmt(s.cooling_pct,' %');el('pump').textContent=s.pump?'ON':'OFF';
+el('fault').textContent=s.fault;cls('fault',s.fault==='NONE'?'ok':'bad');el('error').textContent=fmt(s.control_error_c,' °C');el('watchdog').textContent=s.watchdog_age_ms+' ms';el('trips').textContent=s.safety_trip_count;el('sensor').textContent=s.sensor_valid?'VALID':'INVALID';cls('sensor',s.sensor_valid?'ok':'bad');
+el('engine').textContent=s.control_engine==='st'?'IEC 61131-3 ST (stvm)':'C++17';el('shadow').textContent=(s.shadow_engine||'—')+' / '+s.engine_mismatches;cls('shadow',s.engine_mismatches?'bad':'ok');
+el('iomode').textContent=(s.io_mode==='remote'?'remote node (Modbus TCP)':'local (in-process)')+' · '+(s.io_healthy?'HEALTHY':'LOST');cls('iomode',s.io_healthy?'ok':'bad');el('ioage').textContent=s.io_mode==='remote'?(s.io_sample_age_ms+' ms / '+s.io_comm_errors):'n/a';
+el('lat').textContent=us(s.scan_lateness_p50_us)+' / '+us(s.scan_lateness_p95_us)+' / '+us(s.scan_lateness_p99_us);el('latmax').textContent=us(s.scan_lateness_window_max_us);el('exec').textContent=us(s.scan_exec_p99_us)+' / '+us(s.scan_exec_max_us);el('deadlines').textContent=s.missed_deadlines+' · '+(s.rt_elevated?'elevated':'default');
+if(!inputsSynced){el('setpoint').value=s.setpoint_c;el('heatload').value=s.heat_load_pct;inputsSynced=true;}
+mimic(s);history.push(s);if(history.length>120)history.shift();draw();}catch(e){el('state').textContent='OFFLINE';el('state').style.color='#fb7185';}}
+// Preload the gateway's server-side trend (0.5 s samples -> keep every 2nd to match the 1 s live rate).
+fetch('/api/history').then(r=>r.json()).then(h=>{history.push(...h.filter((_,i)=>i%2===0).slice(-120));}).catch(()=>{}).finally(()=>{setInterval(refresh,1000);refresh();});
+</script></body></html>

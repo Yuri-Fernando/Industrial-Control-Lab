@@ -1,0 +1,9 @@
+FROM python:3.12-slim
+WORKDIR /app
+COPY gateway/ gateway/
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+USER 65534:65534
+ENV CONTROL_HOST=controller CONTROL_PORT=15020 HTTP_BIND=0.0.0.0 HTTP_PORT=8088 MQTT_HOST=mosquitto
+EXPOSE 8088
+CMD ["python", "-m", "gateway.server"]

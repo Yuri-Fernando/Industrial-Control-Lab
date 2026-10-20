@@ -1,0 +1,16 @@
+FROM gcc:14-bookworm AS build
+WORKDIR /app
+COPY src/ src/
+COPY lib/ lib/
+COPY scripts/build_native.sh scripts/
+# gcc:14 ships a newer libstdc++ than bookworm: link the C++ runtime statically (GLIBCXX_3.4.32 mismatch otherwise)
+RUN EXTRA_LDFLAGS="-static-libstdc++ -static-libgcc" bash scripts/build_native.sh
+FROM debian:bookworm-slim
+WORKDIR /app
+COPY --from=build /app/build/industrial_controller /usr/local/bin/controller
+COPY --from=build /app/build/io_node /usr/local/bin/io_node
+COPY st/ st/
+ENV CONTROL_BIND=0.0.0.0 CONTROL_PORT=15020 ICL_ST_FILE=/app/st/FB_Interlocks.st
+EXPOSE 15020 15021
+USER 65534:65534
+CMD ["/usr/local/bin/controller"]

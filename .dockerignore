@@ -1,0 +1,10 @@
+.pio/
+.cache/
+build/
+reports/
+.git/
+.vscode/
+**/__pycache__/
+*.zip
+resumo.md
+adendo.md

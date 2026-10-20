@@ -1,0 +1,9 @@
+{"version":"2.0.0","tasks":[
+{"label":"ICL: Build (PlatformIO, both programs)","type":"shell","command":"pio run","group":"build","problemMatcher":["$gcc"]},
+{"label":"ICL: Run stack (local I/O, C++ engine)","type":"shell","command":"python scripts/lab.py run","isBackground":true,"problemMatcher":[]},
+{"label":"ICL: Run stack (remote I/O node, ST engine)","type":"shell","command":"python scripts/lab.py run --io remote --engine st --rt","isBackground":true,"problemMatcher":[]},
+{"label":"ICL: Unity tests (PlatformIO)","type":"shell","command":"pio test -e test","group":"test","problemMatcher":[]},
+{"label":"ICL: All gates (Unity + integration)","type":"shell","command":"python scripts/lab.py test","group":{"kind":"test","isDefault":true},"problemMatcher":[]},
+{"label":"ICL: Acceptance demo (stack must be running)","type":"shell","command":"python scripts/lab.py demo","problemMatcher":[]},
+{"label":"ICL: Timing benchmark","type":"shell","command":"python scripts/lab.py bench --seconds 15","problemMatcher":[]}
+]}

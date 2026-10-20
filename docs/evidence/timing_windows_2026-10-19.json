@@ -1,0 +1,64 @@
+{
+  "name": "scan timing characterization (50 ms period)",
+  "timestamp_utc": "2026-10-20T00:16:36.168004+00:00",
+  "host": {
+    "os": "Windows-10-10.0.26300-SP0",
+    "python": "3.10.8",
+    "cpus": 6
+  },
+  "note": "Soft real-time measurement on a general-purpose OS; not a hard real-time guarantee.",
+  "results": [
+    {
+      "cpu_stress_processes": 0,
+      "rt_tuning_requested": false,
+      "rt_elevated": false,
+      "window_s": 15,
+      "lateness_p50_us": 331,
+      "lateness_p95_us": 1878,
+      "lateness_p99_us": 3240,
+      "lateness_max_us": 19003,
+      "exec_p99_us": 538,
+      "exec_max_us": 18053,
+      "missed_deadlines": 0
+    },
+    {
+      "cpu_stress_processes": 0,
+      "rt_tuning_requested": true,
+      "rt_elevated": true,
+      "window_s": 15,
+      "lateness_p50_us": 301,
+      "lateness_p95_us": 513,
+      "lateness_p99_us": 561,
+      "lateness_max_us": 595,
+      "exec_p99_us": 21,
+      "exec_max_us": 75,
+      "missed_deadlines": 0
+    },
+    {
+      "cpu_stress_processes": 6,
+      "rt_tuning_requested": false,
+      "rt_elevated": false,
+      "window_s": 15,
+      "lateness_p50_us": 3603,
+      "lateness_p95_us": 13592,
+      "lateness_p99_us": 26843,
+      "lateness_max_us": 32084,
+      "exec_p99_us": 1822,
+      "exec_max_us": 3384,
+      "missed_deadlines": 0
+    },
+    {
+      "cpu_stress_processes": 6,
+      "rt_tuning_requested": true,
+      "rt_elevated": true,
+      "window_s": 15,
+      "lateness_p50_us": 298,
+      "lateness_p95_us": 526,
+      "lateness_p99_us": 602,
+      "lateness_max_us": 698,
+      "exec_p99_us": 23,
+      "exec_max_us": 153,
+      "missed_deadlines": 0
+    }
+  ]
+}

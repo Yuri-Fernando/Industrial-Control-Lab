@@ -1,0 +1,21 @@
+.pio/
+build/
+platformio_local*.ini
+__pycache__/
+.pytest_cache/
+*.py[cod]
+.env
+.vscode/.browse.c_cpp.db*
+.vscode/launch.json
+.vscode/c_cpp_properties.json
+.cache/
+compile_commands.json
+.DS_Store
+logs/
+reports/
+coverage/
+# personal / AI-session material kept out of version control
+resumo.md
+adendo.md
+PROMPT_MESTRE_POC.txt
+*.zip

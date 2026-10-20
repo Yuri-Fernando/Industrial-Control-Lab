@@ -1,0 +1,12 @@
+{
+  "name": "scan timing characterization (50 ms period) — BEFORE ADR-011 (std::this_thread::sleep_until)",
+  "timestamp_utc": "2026-10-19",
+  "host": {"os": "Windows 11 Pro 10.0.26300", "cpus": 6},
+  "note": "First benchmark run, before the absolute-deadline high-resolution timer. Values transcribed verbatim from the console output of `python scripts/lab.py bench --seconds 15`; the JSON written by that run was overwritten by the post-fix run. Window maximum saturates at 65535 us (16-bit register).",
+  "results": [
+    {"cpu_stress_processes": 0, "rt_tuning_requested": false, "rt_elevated": false, "window_s": 15, "lateness_p50_us": 8691, "lateness_p95_us": 18351, "lateness_p99_us": 34911, "lateness_max_us": 65535, "exec_p99_us": 1531, "exec_max_us": 3733, "missed_deadlines": 2},
+    {"cpu_stress_processes": 0, "rt_tuning_requested": true, "rt_elevated": true, "window_s": 15, "lateness_p50_us": 6059, "lateness_p95_us": 14418, "lateness_p99_us": 15238, "lateness_max_us": 15995, "exec_p99_us": 41, "exec_max_us": 78, "missed_deadlines": 0},
+    {"cpu_stress_processes": 6, "rt_tuning_requested": false, "rt_elevated": false, "window_s": 15, "lateness_p50_us": 12249, "lateness_p95_us": 23522, "lateness_p99_us": 55418, "lateness_max_us": 65535, "exec_p99_us": 912, "exec_max_us": 2091, "missed_deadlines": 6},
+    {"cpu_stress_processes": 6, "rt_tuning_requested": true, "rt_elevated": true, "window_s": 15, "lateness_p50_us": 5435, "lateness_p95_us": 13479, "lateness_p99_us": 14835, "lateness_max_us": 15227, "exec_p99_us": 37, "exec_max_us": 163, "missed_deadlines": 0}
+  ]
+}
